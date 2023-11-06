@@ -60,6 +60,8 @@ public interface Glow {
     @Contract("_ -> this")
     @NotNull Glow color(final @NotNull Color color);
 
+    void show(final @NotNull Audience receiver);
+
     /**
      * Show this glow to receiver.
      *
