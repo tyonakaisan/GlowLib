@@ -33,7 +33,7 @@ final class GlowImpl implements Glow {
         Objects.requireNonNull(newEntity, NOT_NULL_ENTITY);
         final Entity oldEntity = this.entity;
 
-        if (Objects.equals(newEntity, oldEntity)) {
+        if (!Objects.equals(newEntity, oldEntity)) {
             this.entity = newEntity;
         }
 
@@ -50,7 +50,7 @@ final class GlowImpl implements Glow {
         Objects.requireNonNull(newColor, NOT_NULL_COLOR);
         final Color oldColor = this.color;
 
-        if (Objects.equals(newColor, oldColor)) {
+        if (!Objects.equals(newColor, oldColor)) {
             this.color = newColor;
         }
 
