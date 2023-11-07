@@ -19,28 +19,10 @@ final class GlowImpl implements Glow {
     private static final String NOT_NULL_ENTITIES = "entities must not be null";
     private static final String NOT_NULL_RECEIVER = "receivers must not be null";
 
-    GlowImpl(final @NotNull GlowEffect glowEffect, final @NotNull Entity entity, final @NotNull Player receiver) {
+    GlowImpl(final @NotNull GlowEffect glowEffect) {
         this.glowEffect = Objects.requireNonNull(glowEffect, NOT_NULL_GLOW_EFFECT);
-        this.entities = Set.of(Objects.requireNonNull(entity, NOT_NULL_ENTITIES));
-        this.receivers = Set.of(Objects.requireNonNull(receiver, NOT_NULL_RECEIVER));
-    }
-
-    GlowImpl(final @NotNull GlowEffect glowEffect, final @NotNull Set<Entity> entities, final @NotNull Player receiver) {
-        this.glowEffect = Objects.requireNonNull(glowEffect, NOT_NULL_GLOW_EFFECT);
-        this.entities = Objects.requireNonNull(entities, NOT_NULL_ENTITIES);
-        this.receivers = Set.of(Objects.requireNonNull(receiver, NOT_NULL_RECEIVER));
-    }
-
-    GlowImpl(final @NotNull GlowEffect glowEffect, final @NotNull Entity entity, final @NotNull Set<Player> receivers) {
-        this.glowEffect = Objects.requireNonNull(glowEffect, NOT_NULL_GLOW_EFFECT);
-        this.entities = Set.of(Objects.requireNonNull(entity, NOT_NULL_ENTITIES));
-        this.receivers = Objects.requireNonNull(receivers, NOT_NULL_RECEIVER);
-    }
-
-    GlowImpl(final @NotNull GlowEffect glowEffect, final @NotNull Set<Entity> entities, final @NotNull Set<Player> receivers) {
-        this.glowEffect = Objects.requireNonNull(glowEffect, NOT_NULL_GLOW_EFFECT);
-        this.entities = Objects.requireNonNull(entities, NOT_NULL_ENTITIES);
-        this.receivers = Objects.requireNonNull(receivers, NOT_NULL_RECEIVER);
+        this.entities = Collections.emptySet();
+        this.receivers = Collections.emptySet();
     }
 
     @Override
@@ -62,5 +44,11 @@ final class GlowImpl implements Glow {
     @Override
     public @NotNull @UnmodifiableView Set<Player> receivers() {
         return Collections.unmodifiableSet(this.receivers);
+    }
+
+    @Override
+    public @NotNull Glow receivers(Player receiver) {
+        this.receivers.add(receiver);
+        return this;
     }
 }

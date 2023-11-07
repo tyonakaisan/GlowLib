@@ -31,7 +31,7 @@ public final class GlowLib {
     private void test(Entity entity, Player player) {
 
         this.activeGlowEffect = GlowEffect.create(GlowEffect.Color.RED);
-        Glow glow = Glow.glowing(this.activeGlowEffect, entity, player);
+        Glow glow = Glow.glowing(this.activeGlowEffect);
 
         glow.entities().add(entity);
 
