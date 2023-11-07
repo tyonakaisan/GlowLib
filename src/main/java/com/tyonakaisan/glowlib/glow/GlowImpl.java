@@ -68,7 +68,7 @@ final class GlowImpl implements Glow {
     }
 
     @Override
-    public void show(@NotNull Audience receiver) {
+    public void show(final @NotNull Audience receiver) {
         Objects.requireNonNull(receiver, NOT_NULL_RECEIVER);
 
         List<WrappedDataValue> dataValues = new ArrayList<>();
@@ -78,6 +78,21 @@ final class GlowImpl implements Glow {
         byte data = watcher.getByte(0);
         data |= 1 << 6;
         dataValues.add(new WrappedDataValue(0, WrappedDataWatcher.Registry.get(Byte.class), data));
+
+        PacketType type = PacketType.Play.Server.ENTITY_METADATA;
+        PacketContainer packet = ProtocolLibrary.getProtocolManager().createPacket(type);
+
+        packet.getIntegers().write(0, this.entity.getEntityId());
+        packet.getDataValueCollectionModifier().write(0, dataValues);
+
+        ProtocolLibrary.getProtocolManager().sendServerPacket((Player) receiver, packet);
+    }
+
+    @Override
+    public void hide(final @NotNull Audience receiver) {
+        List<WrappedDataValue> dataValues = new ArrayList<>();
+
+        dataValues.add(new WrappedDataValue(0, WrappedDataWatcher.Registry.get(Byte.class), 0));
 
         PacketType type = PacketType.Play.Server.ENTITY_METADATA;
         PacketContainer packet = ProtocolLibrary.getProtocolManager().createPacket(type);

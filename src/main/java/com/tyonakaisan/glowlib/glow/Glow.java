@@ -62,6 +62,8 @@ public interface Glow {
 
     void show(final @NotNull Audience receiver);
 
+    void hide(final @NotNull Audience receiver);
+
     /**
      * Show this glow to receiver.
      *
