@@ -1,7 +1,7 @@
 package com.tyonakaisan.glowlib;
 
 import com.tyonakaisan.glowlib.glow.Glow;
-import com.tyonakaisan.glowlib.glow.GlowHandler;
+import com.tyonakaisan.glowlib.glow.GlowEffect;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -14,7 +14,7 @@ public final class GlowLib {
 
     private final Plugin plugin;
 
-    private @Nullable Glow activeGlow;
+    private @Nullable GlowEffect activeGlowEffect;
 
     public GlowLib(
             final Plugin plugin
@@ -30,9 +30,12 @@ public final class GlowLib {
 
     private void test(Entity entity, Player player) {
 
-        this.activeGlow = Glow.glow(entity);
+        this.activeGlowEffect = GlowEffect.create(GlowEffect.Color.RED);
+        Glow glow = Glow.glowing(this.activeGlowEffect, entity, player);
 
-        GlowHandler.show(this.activeGlow, player);
+        glow.entities().add(entity);
+
+        glow.show();
 
         BossBar bossBar = BossBar.bossBar(Component.empty(), 1, BossBar.Color.PURPLE, BossBar.Overlay.PROGRESS);
         bossBar.addViewer(player);
