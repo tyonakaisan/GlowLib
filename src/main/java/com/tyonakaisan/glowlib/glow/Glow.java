@@ -19,12 +19,12 @@ public interface Glow {
     @NotNull @UnmodifiableView Set<Entity> entities();
 
     @Contract("_ -> this")
-    @NotNull Glow entities(Entity entity);
+    @NotNull Glow entities(final @NotNull Entity... entities);
 
-    @NotNull Set<Player> receivers();
+    @NotNull @UnmodifiableView Set<Player> receivers();
 
     @Contract("_ -> this")
-    @NotNull Glow receivers(Player receiver);
+    @NotNull Glow receivers(final @NotNull Player... receivers);
 
     default void show() {
 

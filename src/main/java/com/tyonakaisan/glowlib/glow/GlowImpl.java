@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -36,8 +37,8 @@ final class GlowImpl implements Glow {
     }
 
     @Override
-    public @NotNull Glow entities(Entity entity) {
-        this.entities.add(entity);
+    public @NotNull Glow entities(final @NotNull Entity... entities) {
+        this.entities.addAll(List.of(entities));
         return this;
     }
 
@@ -47,8 +48,8 @@ final class GlowImpl implements Glow {
     }
 
     @Override
-    public @NotNull Glow receivers(Player receiver) {
-        this.receivers.add(receiver);
+    public @NotNull Glow receivers(final @NotNull Player... receivers) {
+        this.receivers.addAll(List.of(receivers));
         return this;
     }
 }
