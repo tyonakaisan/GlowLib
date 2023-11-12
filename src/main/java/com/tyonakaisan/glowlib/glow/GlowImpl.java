@@ -3,7 +3,6 @@ package com.tyonakaisan.glowlib.glow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,8 +21,8 @@ final class GlowImpl implements Glow {
 
     GlowImpl(final @NotNull GlowEffect glowEffect) {
         this.glowEffect = Objects.requireNonNull(glowEffect, NOT_NULL_GLOW_EFFECT);
-        this.entities = Collections.emptySet();
-        this.receivers = Collections.emptySet();
+        this.entities = Set.of();
+        this.receivers = Set.of();
     }
 
     @Override
@@ -32,7 +31,7 @@ final class GlowImpl implements Glow {
     }
 
     @Override
-    public @NotNull @UnmodifiableView Set<Entity> entities() {
+    public @NotNull Set<Entity> entities() {
         return Collections.unmodifiableSet(this.entities);
     }
 
@@ -43,7 +42,7 @@ final class GlowImpl implements Glow {
     }
 
     @Override
-    public @NotNull @UnmodifiableView Set<Player> receivers() {
+    public @NotNull Set<Player> receivers() {
         return Collections.unmodifiableSet(this.receivers);
     }
 
