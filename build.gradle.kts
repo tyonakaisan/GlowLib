@@ -15,10 +15,10 @@ repositories {
 
 dependencies {
     // Paper
-    compileOnly("io.papermc.paper", "paper-api", "1.20.2-R0.1-SNAPSHOT")
+    implementation("io.papermc.paper", "paper-api", "1.20.2-R0.1-SNAPSHOT")
 
     // ProtocolLib
-    compileOnly("com.comphenix.protocol", "ProtocolLib", "5.1.0")
+    implementation("com.comphenix.protocol", "ProtocolLib", "5.1.0")
 }
 
 tasks {
