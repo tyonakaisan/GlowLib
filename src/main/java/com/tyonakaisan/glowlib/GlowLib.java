@@ -7,33 +7,35 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
-import com.tyonakaisan.glowlib.glow.GlowEffect;
 import com.tyonakaisan.glowlib.util.PacketHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public final class GlowLib {
 
-    private @Nullable GlowEffect activeGlowEffect;
+    private final Plugin plugin;
 
     public GlowLib(
+            final Plugin plugin
     ) {
+        this.plugin = plugin;
+
+        init();
     }
 
-    public static void init(final @NotNull Plugin plugin) {
+    public void init() {
         if (!protocolLibLoaded()) {
-            plugin.getComponentLogger().error("[GlowLib] ProtocolLib could not be found! Disable " + plugin.getName() + " !");
+            this.plugin.getComponentLogger().error("[GlowLib] ProtocolLib could not be found! Disable " + this.plugin.getName() + " !");
 
-            Bukkit.getPluginManager().disablePlugin(plugin);
+            Bukkit.getPluginManager().disablePlugin(this.plugin);
         }
 
-        registerPacketListener(plugin);
+        registerPacketListener(this.plugin);
     }
 
     private static void registerPacketListener(final @NotNull Plugin plugin) {
