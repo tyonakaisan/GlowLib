@@ -49,10 +49,6 @@ public final class GlowLib {
                     Player player = event.getPlayer();
                     Entity entity = event.getPacket().getEntityModifier(player.getWorld()).read(0);
 
-                    // TODO
-                    // 光らせるのは成功、ただ、リストに入っていないエンティティも光ってしまう
-                    // 修正済み？要検証
-
                     GlowManager.getInstance().getGlowByPlayer(player).forEach(glow -> {
                         List<WrappedWatchableObject> wrappedWatchableObjects = GlowManager.getInstance().createDataWatcher(glow, entity, player).getWatchableObjects();
 

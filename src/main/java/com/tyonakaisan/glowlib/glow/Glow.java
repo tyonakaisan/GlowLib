@@ -84,11 +84,15 @@ public interface Glow {
 
     /**
      * Send glow to all receivers.
+     *
+     * @param receiver the receiver
      */
     void show(final @NotNull Player receiver);
 
     /**
      * Hides the glow.
+     *
+     * @param receiver the receiver
      */
     void hide(final @NotNull Player receiver);
 }
