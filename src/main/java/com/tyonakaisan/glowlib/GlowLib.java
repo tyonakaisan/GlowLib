@@ -12,34 +12,26 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public final class GlowLib {
 
-    private final Plugin plugin;
-
     public GlowLib(
-            final Plugin plugin
     ) {
-        this.plugin = plugin;
-
-        init();
     }
 
-    public void init() {
+    public static void init(final Plugin plugin) {
         if (!protocolLibLoaded()) {
-            this.plugin.getComponentLogger().error("[GlowLib] ProtocolLib could not be found! Disable " + this.plugin.getName() + " !");
+            plugin.getComponentLogger().error("[GlowLib] ProtocolLib could not be found! Disable " + plugin.getName() + " !");
 
-            Bukkit.getPluginManager().disablePlugin(this.plugin);
+            Bukkit.getPluginManager().disablePlugin(plugin);
         }
 
-        registerPacketListener(this.plugin);
+        registerPacketListener(plugin);
     }
 
-    private static void registerPacketListener(final @NotNull Plugin plugin) {
-        // Metadata changes frequently on entities, so when it gets updated we'll add our glowing state to ensure it's not overriden by updates.
+    private static void registerPacketListener(final Plugin plugin) {
         ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(plugin, ListenerPriority.NORMAL, PacketType.Play.Server.ENTITY_METADATA) {
             @Override
             public void onPacketSending(PacketEvent event) {
