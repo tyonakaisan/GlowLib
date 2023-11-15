@@ -49,6 +49,7 @@ public interface GlowEffect {
      * @param time the time
      * @return the glowEffect
      */
+
     @Contract("_ -> this")
     @NotNull GlowEffect time(final @NotNull Long time);
 
@@ -58,106 +59,106 @@ public interface GlowEffect {
          * Black.
          */
 
-        BLACK(0),
+        BLACK(0x000000),
 
         /**
          * Dark blue.
          */
 
-        DARK_BLUE(1),
+        DARK_BLUE(0x0000aa),
 
         /**
          * Dark green.
          */
 
-        DARK_GREEN(2),
+        DARK_GREEN(0x00aa00),
 
         /**
-         * Dark cyan.
+         * Dark aqua.
          */
 
-        DARK_CYAN(3),
+        DARK_AQUA(0x00aaaa),
 
         /**
          * Dark red.
          */
 
-        DARK_RED(4),
+        DARK_RED(0xaa0000),
 
         /**
-         * Purple.
+         * Dark purple.
          */
 
-        PURPLE(5),
+        DARK_PURPLE(0xaa00aa),
 
         /**
          * Gold.
          */
 
-        GOLD(6),
+        GOLD(0xffaa00),
 
         /**
          * Gray.
          */
 
-        GRAY(7),
+        GRAY(0xaaaaaa),
 
         /**
          * Dark gray.
          */
 
-        DARK_GRAY(8),
+        DARK_GRAY(0x555555),
 
         /**
          * Blue.
          */
 
-        BLUE(9),
+        BLUE(0x5555ff),
 
         /**
          * Green.
          */
 
-        GREEN(10),
+        GREEN(0x55ff55),
 
         /**
-         * Cyan.
+         * Aqua.
          */
 
-        CYAN(11),
+        AQUA(0x55ffff),
 
         /**
          * Red.
          */
 
-        RED(12),
+        RED(0xff5555),
 
         /**
-         * Pink.
+         * Light purple.
          */
 
-        PINK(13),
+        LIGHT_PURPLE(0xff55ff),
 
         /**
          * Yellow.
          */
 
-        YELLOW(14),
+        YELLOW(0xffff55),
 
         /**
          * White.
          */
 
-        WHITE(15);
+        WHITE(0xffffff);
 
         /**
-         * The name map.
+         * The id map.
          */
-        public static final Index<Integer, Color> COLORS = Index.create(Color.class, color -> color.name);
-        private final int name;
+        public static final Index<Integer, Color> COLORS = Index.create(Color.class, color -> color.id);
+        private final int id;
 
-        Color(final int name) {
-            this.name = name;
+        Color(final int id) {
+            this.id = id;
         }
     }
 

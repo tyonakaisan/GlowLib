@@ -11,7 +11,6 @@ final class GlowEffectImpl implements GlowEffect {
 
     private static final String NOT_NULL_COLOR = "color must not be null";
     private static final String NOT_NULL_TIME = "time must not be null";
-    private static final String NOT_NULL_RECEIVER = "receiver must not be null";
 
     GlowEffectImpl(final @NotNull Color color) {
         this.color = color;
@@ -56,41 +55,4 @@ final class GlowEffectImpl implements GlowEffect {
 
         return this;
     }
-    /*
-
-    public void show(final @NotNull Audience receiver) {
-        Objects.requireNonNull(receiver, NOT_NULL_RECEIVER);
-
-        List<WrappedDataValue> dataValues = new ArrayList<>();
-
-        WrappedDataWatcher watcher = WrappedDataWatcher.getEntityWatcher(this.entity);
-
-        byte data = watcher.getByte(0);
-        data |= 1 << 6;
-        dataValues.add(new WrappedDataValue(0, WrappedDataWatcher.Registry.get(Byte.class), data));
-
-        PacketType type = PacketType.Play.Server.ENTITY_METADATA;
-        PacketContainer packet = ProtocolLibrary.getProtocolManager().createPacket(type);
-
-        packet.getIntegers().write(0, this.entity.getEntityId());
-        packet.getDataValueCollectionModifier().write(0, dataValues);
-
-        ProtocolLibrary.getProtocolManager().sendServerPacket((Player) receiver, packet);
-    }
-
-    public void hide(final @NotNull Audience receiver) {
-        List<WrappedDataValue> dataValues = new ArrayList<>();
-
-        dataValues.add(new WrappedDataValue(0, WrappedDataWatcher.Registry.get(Byte.class), 0));
-
-        PacketType type = PacketType.Play.Server.ENTITY_METADATA;
-        PacketContainer packet = ProtocolLibrary.getProtocolManager().createPacket(type);
-
-        packet.getIntegers().write(0, this.entity.getEntityId());
-        packet.getDataValueCollectionModifier().write(0, dataValues);
-
-        ProtocolLibrary.getProtocolManager().sendServerPacket((Player) receiver, packet);
-    }
-
-     */
 }
