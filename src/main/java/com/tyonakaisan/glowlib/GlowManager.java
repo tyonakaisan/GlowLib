@@ -30,10 +30,11 @@ public final class GlowManager {
         return Collections.unmodifiableSet(this.glows);
     }
 
-    public Stream<Glow> getGlowByPlayer(final @NotNull Player player) {
+    public Stream<Glow> getGlowByPlayer(final @NotNull Player player, final @NotNull Entity entity) {
         return this.getGlows()
                 .stream()
-                .filter(glow -> glow.containsReceiver(player));
+                .filter(glow -> glow.containsReceiver(player))
+                .filter(glow -> glow.containsEntities(entity));
     }
 
     public WrappedDataWatcher createDataWatcher(final @NotNull Glow glow, final @NotNull Entity entity, final @NotNull Player receiver) {
