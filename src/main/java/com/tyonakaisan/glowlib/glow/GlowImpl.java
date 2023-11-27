@@ -10,38 +10,42 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 final class GlowImpl implements Glow {
 
-    private GlowEffect glowEffect;
-    private PacketContainer teamPacket;
+    private Color color;
+    private final String teamName;
     private final Set<Entity> entities = ConcurrentHashMap.newKeySet();
     private final Set<Player> receivers = ConcurrentHashMap.newKeySet();
 
-    private static final String NOT_NULL_GLOW_EFFECT = "glowEffect must not be null";
+    private static final String NOT_NULL_COLOR = "color must not be null";
+    private static final String NOT_NULL_NAME = "teamName must not be null";
 
-    GlowImpl(final @NotNull GlowEffect glowEffect) {
-        this.glowEffect = Objects.requireNonNull(glowEffect, NOT_NULL_GLOW_EFFECT);
+    GlowImpl(final @NotNull Color color) {
+        this.color = Objects.requireNonNull(color, NOT_NULL_COLOR);
+        this.teamName = UUID.randomUUID().toString();
+    }
+
+    GlowImpl(final @NotNull Color color, final @NotNull String name) {
+        this.color = Objects.requireNonNull(color, NOT_NULL_COLOR);
+        this.teamName = Objects.requireNonNull(name, NOT_NULL_NAME);
     }
 
     @Override
-    public @NotNull GlowEffect glowEffect() {
-        return this.glowEffect;
+    public @NotNull Color color() {
+        return this.color;
     }
 
     @Override
-    public @NotNull Glow glowEffect(@NotNull GlowEffect newGlowEffect) {
-        Objects.requireNonNull(newGlowEffect, NOT_NULL_GLOW_EFFECT);
-        final GlowEffect oldGlowEffect = this.glowEffect;
+    public @NotNull Glow color(final @NotNull Color newColor) {
+        Objects.requireNonNull(newColor, NOT_NULL_COLOR);
+        final Color oldColor = this.color;
 
-        if (!Objects.equals(newGlowEffect, oldGlowEffect)) {
-            this.glowEffect = newGlowEffect;
+        if (!Objects.equals(newColor, oldColor)) {
+            this.color = newColor;
         }
         return this;
     }
@@ -52,14 +56,30 @@ final class GlowImpl implements Glow {
     }
 
     @Override
-    public @NotNull Glow entities(final @Nullable Entity... entities) {
-        this.entities.addAll(entities != null ? Lists.newArrayList(entities) : Collections.emptyList());
+    public @NotNull Glow addEntities(final @Nullable Entity... entities) {
+        List<Entity> entityList = entities != null ? Lists.newArrayList(entities) : Collections.emptyList();
+        this.operateTeamEntity(entityList, true);
         return this;
     }
 
     @Override
-    public @NotNull Glow entities(@Nullable Collection<Entity> entities) {
-        this.entities.addAll(entities != null ? Lists.newArrayList(entities) : Collections.emptyList());
+    public @NotNull Glow addEntities(final @Nullable Collection<Entity> entities) {
+        List<Entity> entityList = entities != null ? Lists.newArrayList(entities) : Collections.emptyList();
+        this.operateTeamEntity(entityList, true);
+        return this;
+    }
+
+    @Override
+    public @NotNull Glow removeEntities(@Nullable Entity... entities) {
+        List<Entity> entityList = entities != null ? Lists.newArrayList(entities) : Collections.emptyList();
+        this.operateTeamEntity(entityList, false);
+        return this;
+    }
+
+    @Override
+    public @NotNull Glow removeEntities(@Nullable Collection<Entity> entities) {
+        List<Entity> entityList = entities != null ? Lists.newArrayList(entities) : Collections.emptyList();
+        this.operateTeamEntity(entityList, false);
         return this;
     }
 
@@ -69,53 +89,71 @@ final class GlowImpl implements Glow {
     }
 
     @Override
-    public void show(final @NotNull Player receiver) {
-        this.receivers.add(receiver);
+    public void show(final @NotNull Player... receivers) {
+        this.show(List.of(receivers));
+    }
 
+    @Override
+    public void show(final @NotNull Collection<Player> receivers) {
         if (this.entities.isEmpty()) {
             throw new IllegalStateException("The entity to which the glow effect is applied is not specified");
         }
 
-        this.sendGlowingAll(receiver);
+        this.operateDisplay(receivers, true);
         GlowManager.getInstance().add(this);
     }
 
     @Override
-    public void hide(final @NotNull Player receiver) {
-        GlowManager.getInstance().remove(this);
-        this.receivers.removeIf(playerValue -> playerValue.equals(receiver));
-        this.stopGlowingAll(receiver);
+    public void hide(final @NotNull Player... receivers) {
+        this.hide(List.of(receivers));
     }
 
-    private void sendGlowingAll(final @NotNull Player receiver) {
-        GlowPacket.Mode mode = GlowPacket.Mode.CREATE_TEAM;
-
-        this.teamPacket = new GlowPacket().operateTeam(this.entities, this.glowEffect, mode);
-
-        this.forEachEntity(entity -> {
-            PacketContainer metadataPacket = new GlowPacket().operateGlow(entity, true);
-            ProtocolLibrary.getProtocolManager().sendServerPacket(receiver, metadataPacket);
-        });
-
-        ProtocolLibrary.getProtocolManager().sendServerPacket(receiver, this.teamPacket);
+    @Override
+    public void hide(final @NotNull Collection<Player> receivers) {
+        this.operateDisplay(receivers, false);
     }
 
-    private void stopGlowingAll(final @NotNull Player receiver) {
-        this.forEachEntity(entity -> this.stopGlowing(entity, receiver));
-    }
-
-    private void stopGlowing(final @NotNull Entity entity, final @NotNull Player receiver) {
-        PacketContainer packet = new GlowPacket().operateGlow(entity, false);
-
-        this.teamPacket = new GlowPacket().operateTeam(entity, this.glowEffect, GlowPacket.Mode.REMOVE_ENTITIES);
-        ProtocolLibrary.getProtocolManager().sendServerPacket(receiver, packet);
-        ProtocolLibrary.getProtocolManager().sendServerPacket(receiver, this.teamPacket);
-    }
-
-    private void forEachReceiver(final @NotNull Consumer<Player> consumer) {
-        for (final Player receiver : this.receivers) {
-            consumer.accept(receiver);
+    private void operateDisplay(final @NotNull Collection<Player> receivers, final boolean display) {
+        for (Player receiver : receivers) {
+            if (display) {
+                this.receivers.add(receiver);
+                continue;
+            }
+            this.receivers.remove(receiver);
         }
+
+        List<PacketContainer> packets = new ArrayList<>();
+        this.forEachEntity(entity -> packets.add(new GlowPacket().operateGlow(entity, display)));
+        packets.add(new GlowPacket().operateTeam(this.entities, this.color, this.teamName, display ? GlowPacket.Mode.CREATE_TEAM : GlowPacket.Mode.REMOVE_TEAM));
+
+        packets.forEach(packet -> this.sendPacket(receivers, packet));
+
+        if (display) GlowManager.getInstance().add(this);
+    }
+
+    private void operateTeamEntity(final @NotNull Collection<Entity> entities, final boolean add) {
+        List<PacketContainer> packets = new ArrayList<>();
+
+        for (Entity entity : entities) {
+            if (add) {
+                this.entities.add(entity);
+            } else {
+                this.entities.remove(entity);
+            }
+
+            packets.add(new GlowPacket().operateGlow(entity, add));
+            packets.add(new GlowPacket().operateTeam(Collections.singletonList(entity), this.color, this.teamName, add ? GlowPacket.Mode.ADD_ENTITIES : GlowPacket.Mode.REMOVE_ENTITIES));
+        }
+
+        packets.forEach(packet -> this.sendPacket(this.receivers, packet));
+
+        if (!add && this.entities.isEmpty()) {
+            GlowManager.getInstance().remove(this);
+        }
+    }
+
+    private void sendPacket(final @NotNull Collection<Player> players,final @NotNull PacketContainer packet) {
+        players.forEach(player -> ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet));
     }
 
     private void forEachEntity(final @NotNull Consumer<Entity> consumer) {

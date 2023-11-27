@@ -12,9 +12,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
+@SuppressWarnings("unused")
 final class GlowPacket {
 
     public @NotNull PacketContainer operateGlow(final @NotNull Entity entity, final boolean glowing) {
@@ -38,41 +38,20 @@ final class GlowPacket {
         return metadataPacket;
     }
 
-    public @NotNull PacketContainer operateTeam(final @NotNull Entity entity, final @NotNull GlowEffect glowEffect, final @NotNull Mode mode) {
+    public @NotNull PacketContainer operateTeam(final @NotNull Collection<Entity> entities, final @NotNull Glow.Color color, final @NotNull String teamName, final @NotNull Mode mode) {
         PacketContainer teamPacket = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.SCOREBOARD_TEAM);
 
+        teamPacket.getStrings().write(0, teamName);
         teamPacket.getIntegers().write(0, mode.ordinal());
 
-        if (mode == Mode.CREATE_TEAM || mode == Mode.UPDATE_INFO_TEAM) {
-            teamPacket.getOptionalStructures().read(0).ifPresent(internalStructure ->
-                    internalStructure.getEnumModifier(GlowEffect.Color.class,
-                                    MinecraftReflection.getMinecraftClass("EnumChatFormat"))
-                            .write(0, glowEffect.color()));
-        }
+        if (mode == Mode.REMOVE_TEAM) return teamPacket;
 
-        if (mode != Mode.REMOVE_TEAM) {
-            var entityValue = entity instanceof Player ? entity.getName() : entity.getUniqueId().toString();
-            teamPacket.getSpecificModifier(Collection.class).write(0, Collections.singletonList(entityValue));
-        }
+        teamPacket.getOptionalStructures().read(0).ifPresent(internalStructure ->
+                internalStructure.getEnumModifier(Glow.Color.class,
+                                MinecraftReflection.getMinecraftClass("EnumChatFormat"))
+                        .write(0, color));
 
-        return teamPacket;
-    }
-
-    public @NotNull PacketContainer operateTeam(final @NotNull Collection<Entity> entities, final @NotNull GlowEffect glowEffect, final @NotNull Mode mode) {
-        PacketContainer teamPacket = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.SCOREBOARD_TEAM);
-
-        teamPacket.getIntegers().write(0, mode.ordinal());
-
-        if (mode == Mode.CREATE_TEAM || mode == Mode.UPDATE_INFO_TEAM) {
-            teamPacket.getOptionalStructures().read(0).ifPresent(internalStructure ->
-                    internalStructure.getEnumModifier(GlowEffect.Color.class,
-                                    MinecraftReflection.getMinecraftClass("EnumChatFormat"))
-                            .write(0, glowEffect.color()));
-        }
-
-        if (mode != Mode.REMOVE_TEAM) {
-            teamPacket.getSpecificModifier(Collection.class).write(0, this.toEntityValueCollection(entities));
-        }
+        teamPacket.getSpecificModifier(Collection.class).write(0, this.toEntityValueCollection(entities));
 
         return teamPacket;
     }

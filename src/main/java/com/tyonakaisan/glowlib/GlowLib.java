@@ -8,6 +8,8 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedDataValue;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
+import com.comphenix.protocol.wrappers.WrappedWatchableObject;
+import com.tyonakaisan.glowlib.glow.Glow;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -17,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public final class GlowLib {
 
     public GlowLib(
@@ -43,26 +46,43 @@ public final class GlowLib {
                     Player player = event.getPlayer();
                     Entity entity = event.getPacket().getEntityModifier(player.getWorld()).read(0);
 
-                    GlowManager.getInstance().getGlowByPlayer(player, entity).forEach(glow -> {
+                    GlowManager.getInstance().getGlow(player, entity).forEach(glow -> {
+                        List<WrappedWatchableObject> watchableObjects = createDataWatcher(glow, entity, player).getWatchableObjects();
 
-                        List<WrappedDataValue> dataValues = new ArrayList<>();
-                        WrappedDataWatcher dataWatcher = WrappedDataWatcher.getEntityWatcher(entity).deepClone();
-                        byte bitmask = dataWatcher.getByte(0);
-
-                        if (glow.containsReceiver(player) && glow.containsEntities(entity)) {
-                            bitmask |= 0x40;
-                        } else {
-                            bitmask = (byte) 0;
-                        }
-
-                        dataValues.add(new WrappedDataValue(0, WrappedDataWatcher.Registry.get(Byte.class), bitmask));
-
-                        packet.getDataValueCollectionModifier().write(0, dataValues);
+                        packet.getDataValueCollectionModifier().write(0, toDataValues(watchableObjects));
                         event.setPacket(packet);
                     });
                 }
             }
         });
+    }
+
+    private static List<WrappedDataValue> toDataValues(final @NotNull List<WrappedWatchableObject> watchableObjects) {
+        List<WrappedDataValue> wrappedDataValueList = new ArrayList<>();
+
+        for (WrappedWatchableObject entry : watchableObjects) {
+            if (entry == null) continue;
+
+            WrappedDataWatcher.WrappedDataWatcherObject obj = entry.getWatcherObject();
+            wrappedDataValueList.add(new WrappedDataValue(obj.getIndex(), obj.getSerializer(), entry.getRawValue()));
+        }
+
+        return wrappedDataValueList;
+    }
+
+    private static WrappedDataWatcher createDataWatcher(final @NotNull Glow glow, final @NotNull Entity entity, final @NotNull Player receiver) {
+        WrappedDataWatcher dataWatcher = WrappedDataWatcher.getEntityWatcher(entity).deepClone();
+
+        byte bitmask = dataWatcher.getByte(0);
+
+        if (glow.containsReceiver(receiver) && glow.containsEntities(entity)) {
+            bitmask |= 0x40;
+        }
+
+        dataWatcher.setEntity(entity);
+        dataWatcher.setObject(0, WrappedDataWatcher.Registry.get(Byte.class), bitmask);
+
+        return dataWatcher;
     }
 
     private static boolean protocolLibLoaded() {
